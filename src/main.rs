@@ -3,7 +3,11 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use std::time::{Duration, Instant};
 
-use smart_road::{intersection::Intersection, stats::Stats, vehicle::Route};
+use smart_road::{
+    intersection::Intersection,
+    stats::Stats,
+    vehicle::{Direction},
+};
 
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -26,10 +30,18 @@ fn main() -> Result<(), String> {
             match event {
                 Event::Quit { .. } => break 'running,
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'running,
-                Event::KeyDown { keycode: Some(Keycode::Up), .. } => intersection.spawn_vehicle(Route::Straight),
-                Event::KeyDown { keycode: Some(Keycode::Down), .. } => intersection.spawn_vehicle(Route::Straight),
-                Event::KeyDown { keycode: Some(Keycode::Right), .. } => intersection.spawn_vehicle(Route::Right),
-                Event::KeyDown { keycode: Some(Keycode::Left), .. } => intersection.spawn_vehicle(Route::Left),
+                Event::KeyDown { keycode: Some(Keycode::Up), .. } => {
+                    intersection.spawn_vehicle(Direction::North)
+                }
+                Event::KeyDown { keycode: Some(Keycode::Down), .. } => {
+                    intersection.spawn_vehicle(Direction::South)
+                }
+                Event::KeyDown { keycode: Some(Keycode::Right), .. } => {
+                    intersection.spawn_vehicle(Direction::East)
+                }
+                Event::KeyDown { keycode: Some(Keycode::Left), .. } => {
+                    intersection.spawn_vehicle(Direction::West)
+                }
                 _ => {}
             }
         }
@@ -37,7 +49,7 @@ fn main() -> Result<(), String> {
         let now = Instant::now();
         let dt = now.duration_since(last_update).as_secs_f64();
         last_update = now;
-        intersection.update(dt);
+        intersection.update(dt, &mut stats);
 
         canvas.set_draw_color(Color::RGB(30, 30, 30));
         canvas.clear();
@@ -48,12 +60,14 @@ fn main() -> Result<(), String> {
         ::std::thread::sleep(Duration::from_millis(16));
     }
 
-    for v in &intersection.vehicles {
-        stats.register_vehicle(v);
-    }
     println!("Vehicles passed: {}", stats.vehicles_passed);
     println!("Max velocity: {}", stats.max_velocity);
     println!("Min velocity: {}", stats.min_velocity);
+    println!("Max time: {}", stats.max_time);
+    println!("Min time: {}", stats.min_time);
+    if stats.vehicles_passed > 0 {
+        println!("Avg time: {}", stats.total_time / stats.vehicles_passed as f64);
+    }
 
     Ok(())
 }
