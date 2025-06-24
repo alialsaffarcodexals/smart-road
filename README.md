@@ -117,3 +117,22 @@ Animation
 Algorithm
 Mathematics
 Events
+---
+
+## Building and Running
+
+This project uses [Rust](https://www.rust-lang.org/) and the `sdl2` crate.
+The SDL2 development libraries must be installed on your system.
+On Debian/Ubuntu you can install them with:
+
+```bash
+sudo apt-get install libsdl2-dev libsdl2-image-dev
+```
+
+With the libraries installed you can build and run the simulation using Cargo:
+
+```bash
+cargo run
+```
+
+Use the arrow keys to spawn vehicles and `Esc` to exit and show statistics.
